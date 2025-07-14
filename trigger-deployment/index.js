@@ -23,10 +23,14 @@ const fs = require("fs");
 
     const manifest = JSON.stringify(data, null, 2);
 
+    core.info(`📄 Manifest: ${manifest}`);
+
+    const workflowId = `${workflow}.yaml`;
+
     const dispatchData = {
       owner: "sh-proptech",
       repo: "deployment",
-      workflow_id: workflow,
+      workflow_id: workflowId,
       ref: "main",
       inputs: {
         manifest,
