@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.1"
+  },
+  "name": "trigger-deployment",
+  "version": "1.0.0",
+  "description": "This GitHub Action reads a local **deployment or job manifest**, updates its image tag with the current commit SHA, and triggers a remote workflow in another repository using `workflow_dispatch`.",
+  "main": "index.js",
+  "devDependencies": {
+    "@vercel/ncc": "^0.38.3"
+  },
+  "scripts": {
+    "build": "ncc build index.js -o dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
