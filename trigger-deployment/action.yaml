@@ -1,0 +1,17 @@
+name: Trigger Deployment
+description: Reads deployment/job manifest, updates SHA, and triggers remote deployment workflow
+inputs:
+  file:
+    description: Path to deploy.json
+    required: false
+    default: ./deploy.json
+  github_token:
+    description: GitHub token with workflow dispatch access
+    required: true
+  tag:
+    description: Tag to use for the image (e.g. v1.2.3 or SHA)
+    required: true
+
+runs:
+  using: node20
+  main: index.js
