@@ -18,7 +18,7 @@ This GitHub Action reads a local **deployment or job manifest**, updates its ima
 
 ```yaml
 - name: Trigger Remote Deployment
-  uses: sh-proptech/actions/trigger-remote-deploy@v1
+  uses: sh-proptech/actions/trigger-deploy@v1
   with:
     file: ./deploy.json
     tag: ${{ github.sha }}
