@@ -1,0 +1,15 @@
+name: Validate PR
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - edited
+
+jobs:
+  validate-pr:
+    uses: sh-proptech/workflows/.github/workflows/validate-pr.yaml@v0.0.2
+    secrets:
+      NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
