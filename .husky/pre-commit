@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Run unit tests for the action
+npm --prefix trigger-deployment run -s test || exit 1
+
+# Build the action and stage dist output if changed
+npm --prefix trigger-deployment run -s build || exit 1
+
+# Stage dist to ensure bundled action is committed
+git add trigger-deployment/dist
