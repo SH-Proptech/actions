@@ -2,7 +2,7 @@ name: Trigger Deployment
 description: Reads deployment/job manifest, updates SHA, and triggers remote deployment workflow
 inputs:
   file:
-    description: Path to deploy.json
+    description: "Path to deploy manifest (JSON or YAML)"
     required: false
     default: ./deploy.json
   github_token:

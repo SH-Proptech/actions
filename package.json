@@ -1,0 +1,16 @@
+{
+  "name": "actions-root",
+  "private": true,
+  "workspaces": [
+    "trigger-deployment"
+  ],
+  "scripts": {
+    "prepare": "husky",
+    "build": "npm -w trigger-deployment run build",
+    "test": "npm -w trigger-deployment run test",
+    "test:watch": "npm -w trigger-deployment run test:watch"
+  },
+  "devDependencies": {
+    "husky": "^9.0.11"
+  }
+}
