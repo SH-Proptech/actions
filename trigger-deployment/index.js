@@ -8,6 +8,7 @@ const {
   computeWorkflowId,
   toDispatchInput,
 } = require("./lib/manifest");
+const { pollForRun, DISPATCH_CLOCK_SKEW_MS } = require("./lib/poll");
 
 const sleep = util.promisify(setTimeout);
 
@@ -26,10 +27,22 @@ function loadFile(filePath) {
     let data = loadFile(filePath);
     data = applyTag(data, tag);
     const workflowId = computeWorkflowId(data);
+    const manifestName = data.name;
+    if (!manifestName || typeof manifestName !== "string") {
+      throw new Error(
+        "Manifest must include a top-level string 'name' field — used to identify the dispatched workflow run."
+      );
+    }
     // Always dispatch JSON to the remote workflow for consistency
     const manifest = toDispatchInput(data);
 
     const octokit = github.getOctokit(token);
+
+    // Capture dispatch timestamp BEFORE the API call so the
+    // listWorkflowRuns `created>=` filter narrows to runs caused by THIS
+    // dispatch. The 5s skew buffer absorbs clock drift between the runner
+    // and GitHub's API.
+    const dispatchedAt = new Date(Date.now() - DISPATCH_CLOCK_SKEW_MS).toISOString();
 
     core.info(`📤 Dispatching ${workflowId}...`);
     await octokit.rest.actions.createWorkflowDispatch({
@@ -44,35 +57,15 @@ function loadFile(filePath) {
 
     core.info(`⏳ Waiting for workflow run to start...`);
 
-    // 🟨 Poll for the workflow run
-    const pollForRun = async () => {
-      for (let attempt = 0; attempt < 20; attempt++) {
-        const runs = await octokit.rest.actions.listWorkflowRuns({
-          owner: "sh-proptech",
-          repo: "deployment",
-          workflow_id: workflowId,
-          event: "workflow_dispatch",
-          per_page: 5,
-        });
-
-        const match = runs.data.workflow_runs.find(
-          (run) => run.head_branch === "main" && run.status !== "completed"
-        );
-
-        if (match) {
-          core.info(
-            `🚀 Found workflow run: ${match.html_url} (id: ${match.id})`
-          );
-          return match;
-        }
-
-        await sleep(5000); // 5s delay
-      }
-
-      throw new Error("Workflow run not found or didn't start in time");
-    };
-
-    const run = await pollForRun();
+    const run = await pollForRun({
+      octokit,
+      owner: "sh-proptech",
+      repo: "deployment",
+      workflowId,
+      dispatchedAt,
+      manifestName,
+      logger: core,
+    });
 
     // 🟨 Poll for completion
     const waitForCompletion = async (runId) => {
